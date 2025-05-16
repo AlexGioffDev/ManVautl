@@ -1,16 +1,21 @@
+import Header from "@/components/Header";
+import LoadingComponent from "@/components/LoadingComponent";
+import MangaElement from "@/components/MangaElement";
 import { getTopManga } from "@/services/api";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Home() {
   const [mangas, setMangas] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [firstLoading, setFirstLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
 
-  const fetchMangas = async (requestedPage: number) => {
-    if (loading || !hasNextPage) return;
+  const fetchMangas = async (requestedPage: number, isFirstLoad = false) => {
+    if (loading || (!hasNextPage && !isFirstLoad)) return;
+
     setLoading(true);
     try {
       const response = await getTopManga(requestedPage);
@@ -18,54 +23,53 @@ export default function Home() {
 
       setMangas((prev) => [...prev, ...newMangas]);
 
-      // Update page and pagination state
       setHasNextPage(response.pagination.has_next_page);
-      setPage(requestedPage + 1); // move to next page for next fetch
+      setPage(requestedPage + 1);
     } catch (error) {
       console.log("Failed to fetch manga:", error);
     } finally {
       setLoading(false);
+      if (isFirstLoad) setFirstLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMangas(1);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const loadInitialMangas = async () => {
+      await fetchMangas(1, true);
+    };
+    loadInitialMangas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderItem = ({ item }: { item: any }) => (
-    <View
-      style={{
-        padding: 12,
-        backgroundColor: "#fff",
-        marginBottom: 10,
-        borderRadius: 8,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 2,
-      }}
-    >
-      <Text style={{ fontSize: 16, fontWeight: "bold" }}>{item.title}</Text>
-    </View>
-  );
+  if (firstLoading) {
+    return <LoadingComponent />;
+  }
 
   return (
     <View style={{ backgroundColor: "#f2f2f2", flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
-        <FlatList
-          data={mangas}
-          keyExtractor={(item) => item.mal_id.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={{ padding: 16 }}
-          onEndReached={() => fetchMangas(page)}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            loading ? (
-              <ActivityIndicator style={{ marginVertical: 20 }} />
-            ) : null
-          }
-        />
+        <Header />
+        <View
+          style={{
+            paddingHorizontal: 30,
+            paddingVertical: 10,
+            height: 700,
+          }}
+        >
+          <FlatList
+            data={mangas}
+            keyExtractor={(item, index) => item.mal_id.toString() + "#" + index}
+            renderItem={({ item }) => <MangaElement manga={item} />}
+            contentContainerStyle={{ gap: 10 }}
+            onEndReached={() => fetchMangas(page)}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              loading ? (
+                <ActivityIndicator style={{ marginVertical: 20 }} />
+              ) : null
+            }
+          />
+        </View>
       </SafeAreaView>
     </View>
   );

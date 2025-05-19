@@ -2,9 +2,9 @@ import Header from "@/components/Header";
 import LoadingComponent from "@/components/LoadingComponent";
 import { getFullManga } from "@/services/api";
 import { useRoute } from "@react-navigation/native";
+import { Image } from "expo-image";
 import { useEffect, useState } from "react";
-import { Image, SafeAreaView, ScrollView, Text, View } from "react-native";
-
+import { SafeAreaView, ScrollView, Text, View } from "react-native";
 export default function Manga() {
   const route = useRoute() as { params: { id: number } };
   const { id } = route.params;
@@ -56,24 +56,15 @@ export default function Manga() {
                   width: "100%",
                   flexDirection: "row",
                   alignItems: "center",
-                  justifyContent: "space-between",
+                  gap: 5,
                 }}
               >
                 <View
                   style={{
                     gap: 3,
+                    width: "65%",
                   }}
                 >
-                  <Text
-                    style={{
-                      color: "#333",
-                      fontWeight: "bold",
-                      textTransform: "uppercase",
-                      fontSize: 30,
-                    }}
-                  >
-                    {manga["title_english"]}
-                  </Text>
                   <Text
                     style={{
                       fontSize: 14,
@@ -84,25 +75,28 @@ export default function Manga() {
                     {manga["title_japanese"]}
                   </Text>
                 </View>
-                <View
-                  style={{
-                    backgroundColor: "#fff166",
-                    paddingHorizontal: 8,
-                    paddingVertical: 5,
-                    borderRadius: 14,
-                    borderColor: "#333",
-                    borderWidth: 1,
-                  }}
-                >
-                  <Text
+                <View style={{ flex: 1, alignItems: "flex-end" }}>
+                  <View
                     style={{
-                      fontSize: 14,
-                      textTransform: "uppercase",
-                      fontWeight: "300",
+                      backgroundColor: "#fff166",
+                      paddingHorizontal: 8,
+                      paddingVertical: 5,
+                      borderRadius: 14,
+                      borderColor: "#333",
+                      borderWidth: 1,
+                      alignSelf: "flex-end",
                     }}
                   >
-                    {manga["status"]}
-                  </Text>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        textTransform: "uppercase",
+                        fontWeight: "300",
+                      }}
+                    >
+                      {manga["status"]}
+                    </Text>
+                  </View>
                 </View>
               </View>
               {/* END INFO */}
@@ -117,11 +111,14 @@ export default function Manga() {
                 }}
               >
                 <Image
-                  source={{ uri: manga["images"]["jpg"]["large_image_url"] }}
+                  source={{
+                    uri: manga.images.jpg.image_url,
+                  }}
                   style={{
                     width: "100%",
                     height: "100%",
                   }}
+                  contentFit="cover"
                 />
                 <View
                   style={{
@@ -149,7 +146,70 @@ export default function Manga() {
                 </View>
               </View>
               {/* END COVER */}
-              {/* Authors */}
+              {/* Title */}
+              <View
+                style={{
+                  width: "100%",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#333",
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    fontSize: 30,
+                    width: 190,
+                  }}
+                >
+                  {manga["title_english"]}
+                </Text>
+                {/* Authors */}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 2,
+                  }}
+                >
+                  <Text>By</Text>
+                  <View
+                    style={{
+                      width: "55%",
+                    }}
+                  >
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={{
+                        flexDirection: "row",
+                      }}
+                    >
+                      {manga["authors"].map((author, index) => {
+                        const isLast = index === manga["authors"].length - 1;
+
+                        return (
+                          <Text
+                            key={"author" + author["mal_id"]}
+                            style={{
+                              textTransform: "capitalize",
+                              color: "#333",
+                            }}
+                          >
+                            {author["name"]}
+                            {!isLast && " & "}
+                          </Text>
+                        );
+                      })}
+                    </ScrollView>
+                  </View>
+                </View>
+                {/* End Authors */}
+              </View>
+              {/*  END Title*/}
+
+              {/* GENRES */}
               <View
                 style={{
                   width: "100%",
@@ -163,26 +223,44 @@ export default function Manga() {
                     gap: 10,
                   }}
                 >
-                  {manga["authors"].map((author) => {
+                  {manga["genres"].map((genre, index) => {
+                    if (index >= 4) return;
                     return (
                       <View
+                        key={genre["mal_id"]}
                         style={{
                           backgroundColor: "#fff166",
-                          paddingVertical: 5,
-                          paddingHorizontal: 8,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          paddingHorizontal: 10,
+                          paddingVertical: 2,
                           borderRadius: 14,
                           borderWidth: 1,
                           borderColor: "#333",
                         }}
-                        key={author["mal_id"]}
                       >
-                        <Text>{author["name"]}</Text>
+                        <Text
+                          style={{
+                            color: "#333",
+                          }}
+                        >
+                          {genre["name"]}
+                        </Text>
                       </View>
                     );
                   })}
                 </ScrollView>
               </View>
-              {/* End Authors */}
+              {/* END GENRES */}
+              {/* Divider */}
+              <View
+                style={{
+                  width: "100%",
+                  height: 1,
+                  backgroundColor: "#333",
+                }}
+              />
+              {/* End Divider */}
             </View>
           </ScrollView>
         </View>

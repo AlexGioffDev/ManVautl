@@ -32,7 +32,7 @@ export async function getSearchManga(q: string) {
   }
 }
 
-export async function getFullManga(id: number) {
+async function getFullManga(id: number) {
   const url = `${BASE_URL}manga/${id}/full`;
 
   try {
@@ -43,8 +43,34 @@ export async function getFullManga(id: number) {
     }
 
     const data = await response.json();
-    return data;
+    return data.data;
   } catch (error) {
     return error;
   }
+}
+
+async function getMangaRecomentations(id: number) {
+  const url = `${BASE_URL}manga/${id}/recommendations`;
+
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch recommendations!");
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function getMangaData(id: number) {
+  const manga = {};
+
+  manga["details"] = await getFullManga(id);
+  manga["recommendations"] = await getMangaRecomentations(id);
+
+  return manga;
 }

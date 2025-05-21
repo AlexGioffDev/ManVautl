@@ -1,13 +1,14 @@
 import Header from "@/components/Header";
 import LoadingComponent from "@/components/LoadingComponent";
 import MangaElement from "@/components/MangaElement";
+import { MangaDetails } from "@/models/types";
 import { getTopManga } from "@/services/api";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Home() {
-  const [mangas, setMangas] = useState<any[]>([]);
+  const [mangas, setMangas] = useState<MangaDetails[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [firstLoading, setFirstLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);

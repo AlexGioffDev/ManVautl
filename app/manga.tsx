@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import LoadingComponent from "@/components/LoadingComponent";
 import MangaRecomendations from "@/components/MangaRecommendations";
+import { MangaData } from "@/models/types";
 import { getMangaData } from "@/services/api";
 import { useRoute } from "@react-navigation/native";
 import { Image } from "expo-image";
@@ -10,7 +11,7 @@ export default function Manga() {
   const route = useRoute() as { params: { id: number } };
   const { id } = route.params;
 
-  const [manga, setManga] = useState<any>();
+  const [manga, setManga] = useState<MangaData | null>();
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -26,6 +27,14 @@ export default function Manga() {
 
   if (loading) {
     return <LoadingComponent />;
+  }
+
+  if (!manga) {
+    return (
+      <View>
+        <Text>Error</Text>
+      </View>
+    );
   }
 
   return (

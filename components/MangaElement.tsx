@@ -1,8 +1,9 @@
+import { MangaDetails } from "@/models/types";
 import { useNavigation } from "@react-navigation/native";
 import { Image } from "expo-image";
 import { Text, TouchableOpacity, View } from "react-native";
 
-export default function MangaElement({ manga }: { manga: any }) {
+export default function MangaElement({ manga }: { manga: MangaDetails }) {
   const navigation: any = useNavigation();
   const movePage = () => {
     navigation.push("manga", { id: manga["mal_id"] });

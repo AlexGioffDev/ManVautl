@@ -38,7 +38,7 @@ export default function Header() {
             fontSize: 40,
           }}
         >
-          Manga
+          Mikan
         </Text>
       </TouchableOpacity>
       <View
